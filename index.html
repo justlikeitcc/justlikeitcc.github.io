@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复古渐变钟表</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(45deg, #2c3531, #3a524b);
+            font-family: 'Times New Roman', serif;
+        }
+
+        .clock {
+            --size: min(90vh, 90vw);
+            width: var(--size);
+            height: var(--size);
+            border-radius: 50%;
+            position: relative;
+            background: 
+                radial-gradient(circle at 50% 50%, 
+                    rgba(198, 172, 143, 0.8) 0%,
+                    rgba(94, 79, 62, 0.9) 70%),
+                linear-gradient(315deg, 
+                    rgba(74, 62, 42, 0.9) 25%,
+                    transparent 25%),
+                #3a3129;
+            box-shadow: 
+                0 0 20px rgba(0,0,0,0.5),
+                inset 0 0 15px rgba(0,0,0,0.3);
+            filter: sepia(0.3) contrast(1.1);
+        }
+
+        /* 秒刻度线样式 */
+        .second-marks {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .second-mark {
+            position: absolute;
+            width: 1px;
+            height: 5%;
+            background: rgba(228, 213, 195, 0.3);
+            left: 50%;
+            transform-origin: 50% calc((var(--size)/2) - 4%);
+            transform: rotate(calc(var(--deg) * 1deg));
+        }
+
+        /* 罗马数字刻度 */
+        .numbers {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .number {
+            position: absolute;
+            width: 100%;
+            height: 50%;
+            transform-origin: 50% 100%;
+            transform: rotate(var(--rot));
+            color: #e4d5c3;
+            font-size: calc(var(--size) / 12);
+            text-shadow: 0 2px 3px rgba(0,0,0,0.5);
+        }
+
+        .number span {
+            position: absolute;
+            left: 50%;
+            bottom: 78%;
+            transform: translateX(-50%) rotate(calc(-1 * var(--rot)));
+            white-space: nowrap;
+        }
+
+        /* 指针样式 */
+        .hand {
+            position: absolute;
+            bottom: 50%;
+            left: 50%;
+            transform-origin: bottom;
+            border-radius: 4px;
+            box-shadow: 0 0 3px rgba(0,0,0,0.3);
+        }
+
+        .hour {
+            width: calc(var(--size) / 60);
+            height: 25%;
+            background: linear-gradient(to top, #2d2620, #e4d5c3);
+            transform: translateX(-50%);
+        }
+
+        .minute {
+            width: calc(var(--size) / 100);
+            height: 35%;
+            background: linear-gradient(to top, #2d2620, #c1b0a1);
+            transform: translateX(-50%);
+        }
+
+        .second {
+            width: calc(var(--size) / 200);
+            height: 40%;
+            background: #a0522d;
+            transform: translateX(-50%);
+            z-index: 0;
+        }
+
+        /* 中心点 */
+        .center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 3%;
+            height: 3%;
+            background: #a0522d;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 8px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="clock">
+        <!-- 秒刻度线 -->
+        <div class="second-marks" id="secondMarks"></div>
+        
+        <!-- 罗马数字 -->
+        <div class="numbers">
+            <div class="number" style="--rot: 0deg"><span>XII</span></div>
+            <div class="number" style="--rot: 30deg"><span>I</span></div>
+            <div class="number" style="--rot: 60deg"><span>II</span></div>
+            <div class="number" style="--rot: 90deg"><span>III</span></div>
+            <div class="number" style="--rot: 120deg"><span>IV</span></div>
+            <div class="number" style="--rot: 150deg"><span>V</span></div>
+            <div class="number" style="--rot: 180deg"><span>VI</span></div>
+            <div class="number" style="--rot: 210deg"><span>VII</span></div>
+            <div class="number" style="--rot: 240deg"><span>VIII</span></div>
+            <div class="number" style="--rot: 270deg"><span>IX</span></div>
+            <div class="number" style="--rot: 300deg"><span>X</span></div>
+            <div class="number" style="--rot: 330deg"><span>XI</span></div>
+        </div>
+        
+        <!-- 指针 -->
+        <div class="hand hour"></div>
+        <div class="hand minute"></div>
+        <div class="hand second"></div>
+        <div class="center"></div>
+    </div>
+
+    <script>
+        // 生成秒刻度线
+        const secondMarks = document.getElementById('secondMarks');
+        for (let i = 0; i < 60; i++) {
+            const mark = document.createElement('div');
+            mark.className = 'second-mark';
+            mark.style.setProperty('--deg', i * 6);
+            secondMarks.appendChild(mark);
+        }
+
+        // 更新指针
+        function updateClock() {
+            const now = new Date();
+            const seconds = now.getSeconds();
+            const minutes = now.getMinutes();
+            const hours = now.getHours() % 12;
+
+            const hourHand = document.querySelector('.hour');
+            const minuteHand = document.querySelector('.minute');
+            const secondHand = document.querySelector('.second');
+
+            const secondsDeg = seconds * 6;
+            const minutesDeg = (minutes * 6) + (seconds / 10);
+            const hoursDeg = (hours * 30) + (minutes / 2);
+
+            secondHand.style.transform = `translateX(-50%) rotate(${secondsDeg}deg)`;
+            minuteHand.style.transform = `translateX(-50%) rotate(${minutesDeg}deg)`;
+            hourHand.style.transform = `translateX(-50%) rotate(${hoursDeg}deg)`;
+            
+            requestAnimationFrame(updateClock);
+        }
+
+        updateClock();
+    </script>
+</body>
+</html>
